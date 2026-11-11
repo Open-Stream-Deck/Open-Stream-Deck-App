@@ -1,0 +1,68 @@
+export const editor = {
+  "key.iconSettings": ["Настройки иконки", "Icon Settings", "图标设置"],
+  "key.title": ["Заголовок:", "Title:", "标题："],
+  "key.pickAction": [
+    "Выберите действие справа или перетащите его на клавишу",
+    "Choose an action on the right or drag it onto a key",
+    "在右侧选择操作，或将其拖到按键上",
+  ],
+  "key.lostHint": [
+    "Действие не найдено: плагин удалён или в нём больше нет этого действия. Выберите другое действие справа",
+    "Action not found: the plugin was removed or no longer has this action. Choose another action on the right",
+    "未找到操作：插件已被删除或不再包含此操作。请在右侧选择其他操作",
+  ],
+
+  "title.top": ["Сверху", "Top", "顶部"],
+  "title.middle": ["По центру", "Middle", "居中"],
+  "title.bottom": ["Снизу", "Bottom", "底部"],
+  "title.show": ["Показывать", "Show", "显示"],
+  "title.showLabel": ["Показывать заголовок", "Show title", "显示标题"],
+  "title.position": ["Положение", "Position", "位置"],
+  "title.size": ["Размер", "Size", "大小"],
+  "title.fontSize": ["Размер шрифта", "Font size", "字号"],
+  "title.font": ["Шрифт", "Font", "字体"],
+  "title.style": ["Начертание", "Style", "字形"],
+  "title.bold": ["Жирный", "Bold", "粗体"],
+  "title.italic": ["Курсив", "Italic", "斜体"],
+  "title.color": ["Цвет", "Color", "颜色"],
+  "title.auto": ["Авто", "Auto", "自动"],
+  "title.autoHint": ["Авто: под цвет темы", "Auto: matches the theme", "自动：跟随主题"],
+  "title.reset": ["Сбросить настройки", "Reset Settings", "重置设置"],
+
+  "icon.title": ["Иконка клавиши", "Key Icon", "按键图标"],
+  "icon.replace": ["Заменить изображение", "Replace Image", "更换图片"],
+  "icon.pick": ["Выберите или перетащите файл", "Choose or drop a file", "选择或拖入文件"],
+
+  "inspector.noSettings": ["У этого действия нет настроек", "This action has no settings", "此操作没有可设置的选项"],
+  "inspector.replace": ["Заменить", "Replace", "更换"],
+  "sound.play": ["Прослушать", "Preview", "试听"],
+  "sound.stop": ["Остановить", "Stop", "停止"],
+  "sound.pick": ["Выбрать файл", "Choose File", "选择文件"],
+  "sound.files": ["Аудио", "Audio", "音频"],
+  "sound.start": ["Начать с", "Start at", "开始于"],
+  "sound.missing": [
+    "Файл звука не найден, включён стандартный звук",
+    "The sound file is missing, switched to the default sound",
+    "找不到音频文件，已切换为默认提示音",
+  ],
+  "inspector.pick": ["Выберите или перетащите", "Choose or drop", "选择或拖入"],
+  "inspector.pluginSettings": ["Настройки плагина", "Plugin Settings", "插件设置"],
+
+  "hotkey.recording": ["Нажмите сочетание…", "Press a key combination…", "请按下组合键…"],
+  "hotkey.empty": ["Не задано", "Not set", "未设置"],
+
+  "sidebar.back": ["Назад к плагинам", "Back to plugins", "返回插件列表"],
+  "sidebar.assign": ["Назначить на выбранную клавишу", "Assign to Selected Key", "分配给所选按键"],
+  "sidebar.search": ["Поиск…", "Search…", "搜索…"],
+  "sidebar.empty": ["Ничего не найдено", "Nothing found", "未找到结果"],
+
+  "profiles.caption": ["Профили", "Profiles", "配置文件"],
+  "profiles.namePlaceholder": ["Название профиля", "Profile name", "配置文件名称"],
+  "profiles.new": ["Новый профиль", "New Profile", "新建配置文件"],
+  "profiles.delete.title": ["Удалить профиль?", "Delete profile?", "删除配置文件？"],
+  "profiles.delete.text": [
+    "Профиль «{name}» и все его страницы с настройками клавиш будут удалены. Это действие нельзя отменить.",
+    "The profile “{name}” and all its pages and key settings will be deleted. This can't be undone.",
+    "配置文件“{name}”及其所有页面和按键设置都将被删除。此操作无法撤销。",
+  ],
+} satisfies Record<string, readonly [string, string, string]>;

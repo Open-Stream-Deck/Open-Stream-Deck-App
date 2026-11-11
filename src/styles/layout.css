@@ -1,0 +1,62 @@
+.app {
+  display: grid;
+  grid-template-columns: minmax(586px, 1fr) clamp(237px, 24vw, 320px);
+  height: 100%;
+  padding-right: 40px;
+  overflow: hidden;
+}
+
+.workspace {
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  padding: 30px 20px 20px 40px;
+  overflow-y: auto;
+}
+
+.workspace__inner {
+  display: flex;
+  flex-direction: column;
+  width: 546px;
+  flex: none;
+}
+
+.device {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 43px;
+  margin-bottom: 30px;
+}
+
+.device__info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.device__name {
+  margin: 0;
+  font-size: 17px;
+  line-height: 21px;
+  font-weight: 500;
+}
+
+.device__settings {
+  margin-top: 3px;
+}
+
+.device__settings svg {
+  transition: transform 0.6s var(--ease-out);
+}
+
+.device__settings:hover svg {
+  transform: rotate(60deg);
+}
+
+.device__name--offline {
+  color: var(--text-muted);
+}

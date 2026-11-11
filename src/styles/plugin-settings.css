@@ -1,0 +1,29 @@
+:root.plugin-settings-window,
+:root.plugin-settings-window body,
+:root.plugin-settings-window #root {
+  height: 100%;
+  margin: 0;
+  background: #0b0b0c;
+  color-scheme: dark;
+}
+
+.plugin-settings-shell {
+  display: flex;
+  height: 100%;
+}
+
+.plugin-settings-shell__frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: transparent;
+}
+
+.plugin-settings-shell__error {
+  margin: auto;
+  padding: 24px;
+  max-width: 480px;
+  font: 13px/19px system-ui, sans-serif;
+  color: #9a9a9a;
+  text-align: center;
+}

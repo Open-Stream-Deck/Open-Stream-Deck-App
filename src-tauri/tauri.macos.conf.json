@@ -1,0 +1,9 @@
+{
+  "bundle": {
+    "targets": ["app"],
+    "macOS": {
+      "signingIdentity": "-",
+      "minimumSystemVersion": "11.0"
+    }
+  }
+}

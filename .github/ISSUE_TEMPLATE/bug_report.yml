@@ -1,0 +1,64 @@
+name: Сообщить об ошибке
+description: Проблема в приложении Open Stream Deck.
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Версия приложения
+      description: «Настройки», «О программе». Для своей сборки укажите commit.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Прошивка деки
+      description: «Настройки», «Прошивка». Если дека не подключается, напишите, что там показано.
+      placeholder: Open Stream Deck 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Окружение
+      description: Версия Windows и способ подключения USB.
+      placeholder: Windows 11 24H2, USB напрямую
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Где проблема
+      options:
+        - Подключение деки
+        - Клавиши, страницы, профили
+        - Встроенные действия
+        - Виджеты
+        - Плагины
+        - Установка прошивки
+        - Другое
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Что произошло
+      description: Опишите проблему и ожидаемое поведение.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Как повторить
+      placeholder: |
+        1. Открыть ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Скриншоты, журнал плагина, видео
+      description: Для ошибки плагина укажите его id и версию и приложите журнал из «Настройки», «Плагины».

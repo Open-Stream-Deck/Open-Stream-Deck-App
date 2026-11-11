@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  VPK_VERSION: 1.2.161
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check version
+        run: |
+          app=$(node -p 'require("./package.json").version')
+          crate=$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d '"' -f2)
+          if [ "$app" != "$crate" ] || { [ "$GITHUB_REF_TYPE" = tag ] && [ "v$app" != "$GITHUB_REF_NAME" ]; }; then
+            echo "Ref $GITHUB_REF_NAME, package.json $app, Cargo.toml $crate" >&2
+            exit 1
+          fi
+          grep -q "^## \[$app\]" CHANGELOG.md || { echo "CHANGELOG.md has no $app section" >&2; exit 1; }
+      - id: release
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const version = require("./package.json").version;
+            const tag = `v${version}`;
+            const changelog = require("fs").readFileSync("CHANGELOG.md", "utf8");
+            const notes = changelog.split(/^## /m).find((part) => part.startsWith(`[${version}]`));
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              target_commitish: context.sha,
+              name: `Open Stream Deck ${version}`,
+              body: [
+                notes.slice(notes.indexOf("\n") + 1).replace(/^\[[^\]]+\]: .*$/gm, "").trim(),
+                "",
+                "## Установка",
+                "",
+                "Windows: `OpenStreamDeck-win-Setup.exe`, ставится в один клик и сам открывает приложение.",
+                "macOS (Apple Silicon и Intel): `OpenStreamDeck-osx-Setup.pkg`. Установщик не подписан Apple, при первом запуске см. инструкцию.",
+                "Linux: `OpenStreamDeck.AppImage`.",
+                "",
+                "Дальше приложение обновляется само при запуске. Для работы нужна прошивка [Open Stream Deck](https://github.com/Open-Stream-Deck/Firmware-Requests) на ваше устройство.",
+                "Подробно об установке: https://github.com/Open-Stream-Deck/Open-Stream-Deck-App/blob/main/docs/INSTALL.md",
+              ].join("\n"),
+              draft: true,
+            });
+            return tag;
+
+  build:
+    needs: draft
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+          - os: ubuntu-22.04
+          - os: macos-latest
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 update
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 install -y libwebkit2gtk-4.1-dev librsvg2-dev libudev-dev libayatana-appindicator3-dev patchelf gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet tool update -g vpk --version "$VPK_VERSION"
+      - name: Build Windows
+        if: runner.os == 'Windows'
+        run: |
+          pnpm tauri build --no-bundle
+          mkdir stage
+          cp src-tauri/target/release/open-stream-deck.exe stage/
+          echo "PACK=stage" >> "$GITHUB_ENV"
+          echo "PACK_ARGS=--icon src-tauri/icons/icon.ico --splashImage src-tauri/icons/splash.png --splashProgressColor None --framework webview2 --noPortable" >> "$GITHUB_ENV"
+          echo "MAIN_EXE=open-stream-deck.exe" >> "$GITHUB_ENV"
+      - name: Build Linux
+        if: runner.os == 'Linux'
+        run: |
+          pnpm tauri build
+          echo "PACK=$(find src-tauri/target/release/bundle/appimage -maxdepth 1 -name '*.AppDir' | head -n 1)" >> "$GITHUB_ENV"
+          echo "PACK_ARGS=" >> "$GITHUB_ENV"
+          echo "MAIN_EXE=open-stream-deck" >> "$GITHUB_ENV"
+      - name: Build macOS
+        if: runner.os == 'macOS'
+        run: |
+          pnpm tauri build --target universal-apple-darwin
+          echo "PACK=src-tauri/target/universal-apple-darwin/release/bundle/macos/Open Stream Deck.app" >> "$GITHUB_ENV"
+          echo "PACK_ARGS=" >> "$GITHUB_ENV"
+          echo "MAIN_EXE=open-stream-deck" >> "$GITHUB_ENV"
+      - name: Pack
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.draft.outputs.tag }}
+        run: |
+          version="${TAG#v}"
+          vpk download github --repoUrl "https://github.com/$GITHUB_REPOSITORY" --token "$GH_TOKEN" --outputDir releases || true
+          vpk pack --packId OpenStreamDeck --packVersion "$version" --packDir "$PACK" --mainExe "$MAIN_EXE" \
+            --packTitle "Open Stream Deck" --packAuthors whxtelxs --outputDir releases $PACK_ARGS
+          ls -la releases
+          find releases -maxdepth 1 -type f -name "*.nupkg" ! -name "*$version*" -delete
+          gh release upload "$TAG" releases/* --clobber
+
+  publish:
+    needs: [draft, build]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "${{ needs.draft.outputs.tag }}" --repo "$GITHUB_REPOSITORY" --draft=false --latest

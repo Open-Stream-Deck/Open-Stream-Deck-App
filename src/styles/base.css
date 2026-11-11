@@ -1,0 +1,201 @@
+@import "@fontsource-variable/inter";
+
+:root {
+  --bg: #141414;
+  --surface: #181818;
+  --surface-raised: #1e1e1e;
+  --surface-hover: #1b1b1b;
+  --surface-focus: #1a1a1a;
+  --key: #1c1c1c;
+  --key-border: #2a2829;
+  --key-border-hover: #3a3839;
+  --border: #262626;
+  --divider: #1f1f1f;
+  --cable: #1d1d1d;
+  --deck-plate: #121212;
+  --icon: #252525;
+  --text: #ffffff;
+  --text-secondary: #aaaaaa;
+  --text-muted: #727272;
+  --text-faint: #333333;
+  --placeholder: #4a4a4a;
+  --accent: #ffffff;
+  --accent-hover: #e6e6e6;
+  --accent-contrast: #000000;
+  --control: #242424;
+  --control-hover: #2c2c2c;
+  --control-strong: #262626;
+  --control-thumb: #3a3a3a;
+  --input: #202020;
+  --input-hover: #232323;
+  --track: #2a2a2a;
+  --overlay-soft: rgba(255, 255, 255, 0.035);
+  --overlay: rgba(255, 255, 255, 0.05);
+  --overlay-strong: rgba(255, 255, 255, 0.065);
+  --overlay-thumb: rgba(255, 255, 255, 0.12);
+  --shadow-color: rgba(0, 0, 0, 0.45);
+  --backdrop: rgba(8, 8, 8, 0.6);
+  --modal-bg: #161616;
+  --modal-border: #222222;
+  --nav-bg: #141414;
+  --title-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  --danger: #ff5c5c;
+  --success: #4ade80;
+  --warning: #ffb547;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  font-family: "Inter Variable", Inter, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 17px;
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root[data-theme="light"] {
+  --bg: #f1f1f3;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-hover: #f6f6f8;
+  --surface-focus: #ffffff;
+  --key: #f6f6f7;
+  --key-border: #e2e2e6;
+  --key-border-hover: #cdcdd3;
+  --border: #e4e4e8;
+  --divider: #eeeef1;
+  --cable: #dcdce1;
+  --deck-plate: #dcdce1;
+  --icon: #e9e9ed;
+  --text: #121214;
+  --text-secondary: #55555c;
+  --text-muted: #8c8c94;
+  --text-faint: #c4c4ca;
+  --placeholder: #b4b4bb;
+  --accent: #121214;
+  --accent-hover: #2a2a2e;
+  --accent-contrast: #ffffff;
+  --control: #efeff2;
+  --control-hover: #e7e7eb;
+  --control-strong: #ebebef;
+  --control-thumb: #ffffff;
+  --input: #f2f2f5;
+  --input-hover: #ededf1;
+  --track: #dcdce1;
+  --overlay-soft: rgba(0, 0, 0, 0.025);
+  --overlay: rgba(0, 0, 0, 0.04);
+  --overlay-strong: rgba(0, 0, 0, 0.055);
+  --overlay-thumb: rgba(0, 0, 0, 0.08);
+  --shadow-color: rgba(20, 20, 30, 0.12);
+  --backdrop: rgba(30, 30, 40, 0.25);
+  --modal-bg: #ffffff;
+  --modal-border: #e4e4e8;
+  --nav-bg: #f7f7f9;
+  --title-shadow: none;
+  --danger: #e5484d;
+  --success: #2f9e5b;
+  --warning: #d9822b;
+
+  color-scheme: light;
+}
+
+:root.theme-transition,
+:root.theme-transition *,
+:root.theme-transition *::before,
+:root.theme-transition *::after {
+  transition: background-color 0.45s ease, border-color 0.45s ease, color 0.45s ease, box-shadow 0.45s ease,
+    fill 0.45s ease, stroke 0.45s ease !important;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+}
+
+button {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+@keyframes pop-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

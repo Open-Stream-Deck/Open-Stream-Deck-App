@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Прошивка AKP153R
+    url: https://github.com/Open-Stream-Deck/Firmware-AjazzAKP153R/issues
+    about: Ошибки прошивки, загрузчика и сборки образа.
+  - name: Поддержка других устройств
+    url: https://github.com/Open-Stream-Deck/Firmware-Requests/issues
+    about: Запросы прошивки для других макропанелей.
+  - name: SDK плагинов
+    url: https://github.com/Open-Stream-Deck/Open-Stream-Deck-SDK/issues
+    about: Ошибки opensd CLI, крейтов и npm-пакетов SDK.
+  - name: Документация
+    url: https://wiki.opensd.dev
+    about: Руководства по приложению и SDK.
