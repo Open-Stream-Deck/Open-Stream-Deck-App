@@ -13,6 +13,7 @@ export type StorePlugin = {
   description: string;
   features: string[];
   permissions: Permission[];
+  components?: { name: string; version: string; platforms: string[] }[];
   changes: string[];
   downloads: number;
   color: string | null;

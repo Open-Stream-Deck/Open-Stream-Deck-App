@@ -88,12 +88,7 @@ button.deck-key--selected:hover {
 
 .deck-key--drop {
   border-color: var(--text-muted);
-  background: var(--modal-border);
   transform: scale(1.04);
-}
-
-.deck-key--preview {
-  background: var(--surface);
 }
 
 .deck-key__icon {
@@ -115,7 +110,7 @@ button.deck-key--selected:hover {
   margin: -25px 0 0 -25px;
   border-radius: 0;
   background: none;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .deck-key__icon--glyph .item-icon__glyph {

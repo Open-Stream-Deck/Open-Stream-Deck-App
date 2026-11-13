@@ -175,6 +175,58 @@ async fn plugin_uninstall(host: Host<'_>, id: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || host.uninstall(&id)).await.map_err(|e| e.to_string())?
 }
 
+#[derive(serde::Deserialize)]
+#[serde(tag = "action", rename_all = "snake_case", deny_unknown_fields)]
+enum ComponentRequest {
+    Overview { id: String },
+    Discover { id: String, target: String },
+    Plan { id: String, component: String, target: String, root: PathBuf },
+    Remove { installation: String },
+    Apply { plan: String, replace_conflicts: bool },
+    Export { id: String, component: String, output: PathBuf },
+    Recover,
+}
+
+#[tauri::command]
+async fn plugin_components(
+    window: tauri::WebviewWindow,
+    host: Host<'_>,
+    request: ComponentRequest,
+) -> Result<serde_json::Value, String> {
+    if window.label() != "main" {
+        return Err("External components are managed by the main application window".into());
+    }
+    let host = host.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || match request {
+        ComponentRequest::Overview { id } => {
+            serde_json::to_value(host.component_overview(&id)?).map_err(|e| e.to_string())
+        }
+        ComponentRequest::Discover { id, target } => {
+            serde_json::to_value(host.component_candidates(&id, &target)?).map_err(|e| e.to_string())
+        }
+        ComponentRequest::Plan { id, component, target, root } => {
+            serde_json::to_value(host.component_plan(&id, &component, &target, root)?).map_err(|e| e.to_string())
+        }
+        ComponentRequest::Remove { installation } => {
+            serde_json::to_value(host.component_remove_plan(&installation)?).map_err(|e| e.to_string())
+        }
+        ComponentRequest::Apply { plan, replace_conflicts } => {
+            host.component_apply(&plan, replace_conflicts)?;
+            Ok(serde_json::Value::Null)
+        }
+        ComponentRequest::Export { id, component, output } => {
+            host.component_export(&id, &component, &output)?;
+            Ok(serde_json::Value::Null)
+        }
+        ComponentRequest::Recover => {
+            host.component_recover()?;
+            Ok(serde_json::Value::Null)
+        }
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
 #[tauri::command]
 fn plugin_permissions_review(host: Host<'_>, id: String) -> Result<serde_json::Value, String> {
     host.permissions_review(&id)
@@ -340,6 +392,7 @@ pub fn run() {
             store_list,
             store_install,
             plugin_uninstall,
+            plugin_components,
             plugin_permissions_review,
             plugin_permissions_approve,
             plugin_permissions_revoke,

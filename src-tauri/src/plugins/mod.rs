@@ -1,5 +1,7 @@
 mod broker;
 pub mod catalog;
+mod component_discovery;
+pub mod components;
 mod dev;
 mod files;
 mod grants;
@@ -43,6 +45,7 @@ pub struct PluginHost {
     sessions: Mutex<HashMap<(String, u64), Arc<broker::Session>>>,
     dev: dev::Dev,
     install_lock: Mutex<()>,
+    component_plans: Mutex<BTreeMap<String, components::Pending>>,
 }
 
 impl PluginHost {
@@ -59,6 +62,7 @@ impl PluginHost {
             revisions: Mutex::default(),
             sessions: Mutex::default(),
             install_lock: Mutex::new(()),
+            component_plans: Mutex::default(),
         });
         host.scan();
         eprintln!("plugins: {}", host.root.display());
@@ -290,7 +294,14 @@ impl PluginHost {
             return response;
         }
         let Some((id, rel)) = files::split(request) else { return files::not_found() };
-        let Some(dir) = self.plugins.lock().unwrap().get(&id).map(|p| p.dir.clone()) else {
+        let Some(dir) = self
+            .plugins
+            .lock()
+            .unwrap()
+            .get(&id)
+            .filter(|p| !p.manifest.component_sources().any(|source| source == rel))
+            .map(|p| p.dir.clone())
+        else {
             return files::not_found();
         };
         files::serve(&dir, &rel)

@@ -1,9 +1,10 @@
+import { components } from "./strings/components";
 import { common } from "./strings/common";
 import { editor } from "./strings/editor";
 import { settings } from "./strings/settings";
 import { widgets } from "./strings/widgets";
 
-export const STRINGS = { ...common, ...settings, ...editor, ...widgets };
+export const STRINGS = { ...components, ...common, ...settings, ...editor, ...widgets };
 
 export const PLURALS = {
   actions: {

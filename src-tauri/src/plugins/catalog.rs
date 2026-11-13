@@ -26,6 +26,8 @@ struct Entry {
     #[serde(default)]
     permissions: Option<Value>,
     #[serde(default)]
+    components: Vec<ComponentSummary>,
+    #[serde(default)]
     verified: bool,
     #[serde(default)]
     color: Option<String>,
@@ -44,6 +46,13 @@ struct Entry {
     downloads: u64,
 }
 
+#[derive(Deserialize, Serialize)]
+struct ComponentSummary {
+    name: String,
+    version: String,
+    platforms: Vec<String>,
+}
+
 #[derive(Serialize)]
 pub struct StorePlugin {
     id: String,
@@ -58,6 +67,7 @@ pub struct StorePlugin {
     features: Vec<String>,
     changes: Vec<String>,
     permissions: Vec<broker::Permission>,
+    components: Vec<ComponentSummary>,
     downloads: u64,
     color: Option<String>,
     icon: Option<String>,
@@ -107,6 +117,7 @@ pub fn list(host: &PluginHost) -> Result<Vec<StorePlugin>, String> {
                 update: installed.as_deref().is_some_and(|v| !semver_at_least(v, &e.version)),
                 installed,
                 permissions: broker::describe(&permissions),
+                components: e.components,
                 summary: if e.summary.is_empty() { e.description.clone() } else { e.summary },
                 icon: e.icon.map(|path| format!("{BASE}{path}")),
                 id: e.id,

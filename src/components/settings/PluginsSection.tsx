@@ -1,3 +1,4 @@
+import { ComponentsDialog } from "./ComponentsDialog";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { invoke } from "@tauri-apps/api/core";
 import { isTauri } from "../../deck/link";
@@ -5,7 +6,7 @@ import { type Key, t, tn } from "../../i18n";
 import { pluginHost } from "../../plugins/host";
 import type { Plugin } from "../../types";
 import { type MenuItem, openContextMenu } from "../ui/ContextMenu";
-import { DocumentText, FolderOpen, Gear, Import, Refresh, Shield, Trash } from "../ui/icons";
+import { Box, DocumentText, FolderOpen, Gear, Import, Refresh, Shield, Trash } from "../ui/icons";
 import { PluginIcon } from "../ui/pluginIcons";
 import { showToast } from "../ui/Toast";
 import { Toggle } from "../ui/Toggle";
@@ -60,17 +61,26 @@ async function revealLog(id: string) {
 
 export function PluginsSection({ installed, available, onInstall, onDelete, onOpenFolder }: Props) {
   const [installing, setInstalling] = useState<string[]>([]);
+  const [componentPlugin, setComponentPlugin] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [grant, setGrant] = useState<Grant | null>(null);
   const [grantOpen, setGrantOpen] = useState(false);
+  const [pendingComponent, setPendingComponent] = useState<string | null>(null);
   const [developerMode, setDeveloperMode] = useState(false);
   const [, rerender] = useState(0);
   const timers = useRef<number[]>([]);
 
   const review = (request: Grant) => {
+    setPendingComponent((current) => current === request.id ? current : null);
     setGrant(request);
     setGrantOpen(true);
   };
+
+  function finishGrant() {
+    setGrantOpen(false);
+    if (pendingComponent) setComponentPlugin(pendingComponent);
+    setPendingComponent(null);
+  }
 
   const run = async (task: () => Promise<unknown>) => {
     setBusy(true);
@@ -113,9 +123,11 @@ export function PluginsSection({ installed, available, onInstall, onDelete, onOp
       const plugin = await pluginHost.install(path);
       showToast(t("plugins.installedNamed", { name: plugin.manifest.name }));
       if (plugin.permissions.length && !plugin.granted) {
+        if (plugin.manifest.components?.length) setPendingComponent(plugin.id);
         review(await invoke<Grant>("plugin_permissions_review", { id: plugin.id }));
-      }
+      } else if (plugin.manifest.components?.length) setComponentPlugin(plugin.id);
     } catch (e) {
+      setPendingComponent(null);
       showToast(t("plugins.installFailed", { error: String(e) }));
     } finally {
       setBusy(false);
@@ -151,6 +163,9 @@ export function PluginsSection({ installed, available, onInstall, onDelete, onOp
         },
       });
     }
+    if (ext?.hasComponents) {
+      items.push({ label: t("components.title"), icon: FolderOpen, onSelect: () => setComponentPlugin(id) });
+    }
     if (ext) {
       items.push(
         { label: t("plugins.openLog"), icon: DocumentText, onSelect: () => void revealLog(id).catch((e) => showToast(String(e))) },
@@ -175,14 +190,19 @@ export function PluginsSection({ installed, available, onInstall, onDelete, onOp
 
   return (
     <>
+      <ComponentsDialog plugin={componentPlugin} icon={installed.find((item) => item.id === componentPlugin)?.ext?.icon} onClose={() => setComponentPlugin(null)} />
       <div class="plugins-toolbar">
+        <button type="button" class="button" disabled={busy} onClick={installFromFile}>
+          {busy ? <span class="spinner" /> : <Import size={16} />}
+          {t("plugins.installFile")}
+        </button>
         <button type="button" class="button" onClick={() => onOpenFolder()}>
           <FolderOpen size={16} />
           {t("plugins.openFolder")}
         </button>
-        <button type="button" class="button" disabled={busy} onClick={installFromFile}>
-          {busy ? <span class="spinner" /> : <Import size={16} />}
-          {t("plugins.installFile")}
+        <button type="button" class="button" disabled={!isTauri()} onClick={() => setComponentPlugin("")}>
+          <Box size={16} />
+          {t("components.title")}
         </button>
       </div>
 
@@ -250,8 +270,12 @@ export function PluginsSection({ installed, available, onInstall, onDelete, onOp
         <PluginStore
           onInstalled={(plugin) => {
             if (plugin.permissions.length && !plugin.granted) {
-              invoke<Grant>("plugin_permissions_review", { id: plugin.id }).then(review).catch((e) => showToast(String(e)));
-            }
+              if (plugin.manifest.components?.length) setPendingComponent(plugin.id);
+              invoke<Grant>("plugin_permissions_review", { id: plugin.id }).then(review).catch((e) => {
+                setPendingComponent(null);
+                showToast(String(e));
+              });
+            } else if (plugin.manifest.components?.length) setComponentPlugin(plugin.id);
           }}
         />
       )}
@@ -260,11 +284,13 @@ export function PluginsSection({ installed, available, onInstall, onDelete, onOp
         grant={grant}
         open={grantOpen}
         icon={installed.find((p) => p.id === grant?.id)?.ext?.icon}
-        onClose={() => setGrantOpen(false)}
+        onClose={() => { if (!busy) finishGrant(); }}
         onAllow={() => {
           if (!grant || busy) return;
-          setGrantOpen(false);
-          void run(() => invoke("plugin_permissions_approve", { id: grant.id, digest: grant.digest }));
+          void run(async () => {
+            await invoke("plugin_permissions_approve", { id: grant.id, digest: grant.digest });
+            finishGrant();
+          });
         }}
       />
     </>

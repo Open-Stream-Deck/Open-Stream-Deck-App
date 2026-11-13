@@ -84,6 +84,7 @@ export function PluginStore({ onInstalled }: { onInstalled: (plugin: PluginInfo)
     try {
       const info = await pluginHost.installFromStore(plugin.id);
       showToast(t(update ? "store.updated" : "plugins.installedNamed", { name: plugin.name }));
+      setOpenId(null);
       onInstalled(info);
     } catch (e) {
       showToast(t("plugins.installFailed", { error: String(e) }));
@@ -172,6 +173,11 @@ export function PluginStore({ onInstalled }: { onInstalled: (plugin: PluginInfo)
                   </ul>
                 </section>
               )}
+              {!!shown.components?.length && <section>
+                <h3>{t("components.title")}</h3>
+                <p>{t("components.warning")}</p>
+                <ul>{shown.components.map((component) => <li key={component.name}>{component.name} {component.version}: {component.platforms.join(", ")}</li>)}</ul>
+              </section>}
               <section>
                 <h3>{t("store.permissions")}</h3>
                 {shown.permissions.length ? (

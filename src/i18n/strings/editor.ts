@@ -26,7 +26,7 @@ export const editor = {
   "title.italic": ["Курсив", "Italic", "斜体"],
   "title.color": ["Цвет", "Color", "颜色"],
   "title.auto": ["Авто", "Auto", "自动"],
-  "title.autoHint": ["Авто: под цвет темы", "Auto: matches the theme", "自动：跟随主题"],
+  "title.autoHint": ["Авто: белый, как на экране деки", "Auto: white, matching the deck display", "自动：白色，与设备屏幕一致"],
   "title.reset": ["Сбросить настройки", "Reset Settings", "重置设置"],
 
   "icon.title": ["Иконка клавиши", "Key Icon", "按键图标"],

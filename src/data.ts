@@ -295,7 +295,7 @@ export const DEFAULT_TITLE_STYLE: TitleStyle = {
 };
 
 export function titleColor(color: string) {
-  return color === AUTO_COLOR ? "var(--text)" : color;
+  return color === AUTO_COLOR ? "#ffffff" : color;
 }
 
 export function fontCss(value: string) {

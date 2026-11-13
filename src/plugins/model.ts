@@ -41,6 +41,7 @@ export type Manifest = {
   runtime: { type: "wasm" | "js"; main: string };
   ui?: { inspector?: string; settings?: string };
   permissions?: { loopback?: string[]; network?: string[]; clipboard?: boolean; launch?: unknown[]; keyboard?: boolean; navigation?: boolean };
+  components?: { id: string; name: string; version: string }[];
   actions: ManifestAction[];
 };
 
@@ -110,6 +111,7 @@ export function toPlugin(info: PluginInfo): Plugin {
       homepage: m.homepage,
       license: m.license,
       settingsPage: m.ui?.settings,
+      hasComponents: !!m.components?.length,
       permissions: info.permissions,
       granted: info.granted,
       dev: info.dev,

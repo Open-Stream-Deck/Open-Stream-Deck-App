@@ -89,7 +89,7 @@
   height: 52px;
   margin-bottom: 16px;
   border-radius: 16px;
-  background: rgba(255, 92, 92, 0.1);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
   color: var(--danger);
   animation: confirm-icon 0.5s var(--ease-spring) 0.08s backwards;
 }
@@ -179,7 +179,7 @@
 
 .context-menu__item--danger:hover:not(:disabled) {
   color: var(--danger);
-  background: rgba(255, 92, 92, 0.1);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
 }
 
 .context-menu__icon {
@@ -278,7 +278,7 @@
 
 .icon-button--danger:hover:not(:disabled) {
   color: var(--danger);
-  background: rgba(255, 92, 92, 0.1);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
 }
 
 .icon-button--surface {
@@ -330,11 +330,11 @@
 
 .button--danger {
   color: var(--danger);
-  background: rgba(255, 92, 92, 0.08);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
 }
 
 .button--danger:hover:not(:disabled) {
-  background: rgba(255, 92, 92, 0.14);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
 }
 
 .button--danger-solid {
@@ -343,7 +343,7 @@
 }
 
 .button--danger-solid:hover:not(:disabled) {
-  background: #ff7373;
+  background: color-mix(in srgb, var(--danger) 88%, var(--accent));
 }
 
 .link-button {

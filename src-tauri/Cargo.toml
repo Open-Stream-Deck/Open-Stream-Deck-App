@@ -1,6 +1,6 @@
 [package]
 name = "open-stream-deck"
-version = "1.0.0"
+version = "1.1.0"
 description = "Приложение для макропанели AJAZZ AKP153R с прошивкой Open Stream Deck"
 authors = ["whxtelxs"]
 edition = "2024"
@@ -16,8 +16,8 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-opensd-package = "1.2.0"
-opensd-ui = "1.2.0"
+opensd-package = "1.3.0"
+opensd-ui = "1.3.0"
 getrandom = "0.3"
 sha2 = "0.10"
 tauri = { version = "2", features = ["tray-icon"] }
@@ -44,7 +44,7 @@ tauri-plugin-autostart = "2"
 tauri-plugin-single-instance = "2"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_System_Threading", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_System_Threading", "Win32_System_Registry", "Win32_UI_WindowsAndMessaging"] }
 windows = { version = "0.62", features = ["Foundation", "Media_Control", "Win32_Media_Audio", "Win32_Graphics_Dxgi", "Win32_Media_Audio_Endpoints", "Win32_System_Com", "Win32_System_Performance"] }
 
 [profile.release]

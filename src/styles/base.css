@@ -6,7 +6,7 @@
   --surface-raised: #1e1e1e;
   --surface-hover: #1b1b1b;
   --surface-focus: #1a1a1a;
-  --key: #1c1c1c;
+  --key: #000000;
   --key-border: #2a2829;
   --key-border-hover: #3a3839;
   --border: #262626;
@@ -57,47 +57,46 @@
 }
 
 :root[data-theme="light"] {
-  --bg: #f1f1f3;
-  --surface: #ffffff;
+  --bg: #e3e7ed;
+  --surface: #f0f2f5;
   --surface-raised: #ffffff;
-  --surface-hover: #f6f6f8;
+  --surface-hover: #e8ecf2;
   --surface-focus: #ffffff;
-  --key: #f6f6f7;
-  --key-border: #e2e2e6;
-  --key-border-hover: #cdcdd3;
-  --border: #e4e4e8;
-  --divider: #eeeef1;
-  --cable: #dcdce1;
-  --deck-plate: #dcdce1;
-  --icon: #e9e9ed;
-  --text: #121214;
-  --text-secondary: #55555c;
-  --text-muted: #8c8c94;
-  --text-faint: #c4c4ca;
-  --placeholder: #b4b4bb;
-  --accent: #121214;
-  --accent-hover: #2a2a2e;
+  --key-border: #cdd5e0;
+  --key-border-hover: #b9c4d3;
+  --border: #d4dbe5;
+  --divider: #dfe4ec;
+  --cable: #cbd4e0;
+  --deck-plate: #dce2eb;
+  --icon: #e3e8ef;
+  --text: #1b2330;
+  --text-secondary: #495466;
+  --text-muted: #586479;
+  --text-faint: #586479;
+  --placeholder: #586479;
+  --accent: #1b2330;
+  --accent-hover: #303b4e;
   --accent-contrast: #ffffff;
-  --control: #efeff2;
-  --control-hover: #e7e7eb;
-  --control-strong: #ebebef;
+  --control: #e1e6ed;
+  --control-hover: #d6dde7;
+  --control-strong: #dce2eb;
   --control-thumb: #ffffff;
-  --input: #f2f2f5;
-  --input-hover: #ededf1;
-  --track: #dcdce1;
-  --overlay-soft: rgba(0, 0, 0, 0.025);
-  --overlay: rgba(0, 0, 0, 0.04);
-  --overlay-strong: rgba(0, 0, 0, 0.055);
-  --overlay-thumb: rgba(0, 0, 0, 0.08);
-  --shadow-color: rgba(20, 20, 30, 0.12);
-  --backdrop: rgba(30, 30, 40, 0.25);
+  --input: #e3e8ef;
+  --input-hover: #dce3ec;
+  --track: #c8d1de;
+  --overlay-soft: rgba(27, 35, 48, 0.035);
+  --overlay: rgba(27, 35, 48, 0.055);
+  --overlay-strong: rgba(27, 35, 48, 0.08);
+  --overlay-thumb: rgba(27, 35, 48, 0.13);
+  --shadow-color: rgba(29, 39, 55, 0.12);
+  --backdrop: rgba(34, 44, 60, 0.24);
   --modal-bg: #ffffff;
-  --modal-border: #e4e4e8;
-  --nav-bg: #f7f7f9;
+  --modal-border: #d4dbe5;
+  --nav-bg: #f6f7fa;
   --title-shadow: none;
-  --danger: #e5484d;
-  --success: #2f9e5b;
-  --warning: #d9822b;
+  --danger: #b92b3c;
+  --success: #1e7041;
+  --warning: #94580e;
 
   color-scheme: light;
 }
@@ -151,6 +150,10 @@ button:disabled {
 :focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.35);
   outline-offset: 2px;
+}
+
+:root[data-theme="light"] :focus-visible {
+  outline-color: var(--text-secondary);
 }
 
 ::-webkit-scrollbar {

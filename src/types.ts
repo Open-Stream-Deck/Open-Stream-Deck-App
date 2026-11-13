@@ -96,6 +96,7 @@ export type ExternalPlugin = {
   homepage?: string;
   license?: string;
   settingsPage?: string;
+  hasComponents: boolean;
   permissions: Permission[];
   granted: boolean;
   dev: boolean;
