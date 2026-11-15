@@ -1,3 +1,5 @@
+mod discord;
+mod widgets;
 use crate::actions::{self, Stroke};
 use base64::Engine;
 use futures_util::{SinkExt, StreamExt};
@@ -32,6 +34,10 @@ pub type Reply = Arc<dyn Fn(Value) -> bool + Send + Sync>;
 
 pub struct Session {
     permissions: Permissions,
+    discord: Mutex<Option<tokio::sync::mpsc::Sender<Value>>>,
+    widget_routes: Mutex<Vec<String>>,
+    root: PathBuf,
+    widget_secret: String,
     granted: bool,
     reply: Reply,
     sockets: Mutex<HashMap<String, (usize, Sender<Message>)>>,
@@ -48,9 +54,13 @@ struct Watches {
 }
 
 impl Session {
-    pub fn new(manifest: &Manifest, granted: bool, reply: Reply) -> Arc<Self> {
+    pub fn new(manifest: &Manifest, granted: bool, reply: Reply, root: PathBuf, widget_secret: String) -> Arc<Self> {
         Arc::new(Self {
             permissions: manifest.permissions.clone(),
+            discord: Mutex::default(),
+            widget_routes: Mutex::default(),
+            root,
+            widget_secret,
             granted,
             reply,
             sockets: Mutex::default(),
@@ -62,6 +72,8 @@ impl Session {
     }
 
     pub fn close(&self) {
+        widgets::close_session(self);
+        self.discord.lock().unwrap().take();
         self.sockets.lock().unwrap().clear();
         self.watches.lock().unwrap().list.clear();
         let held = std::mem::take(&mut *self.held.lock().unwrap());
@@ -109,7 +121,13 @@ fn object(value: Value) -> Map<String, Value> {
 pub fn handles(kind: &str) -> bool {
     matches!(
         kind,
-        "http"
+        "widgetOpen"
+            | "widgetState"
+            | "widgetClose"
+            | "discordOpen"
+            | "discordSend"
+            | "discordClose"
+            | "http"
             | "wsOpen"
             | "wsSend"
             | "wsClose"
@@ -136,6 +154,8 @@ pub fn handle(session: &Arc<Session>, command: &Value) {
     let p = &session.permissions;
     let local = is_loopback(command["url"].as_str().unwrap_or_default());
     match kind {
+        "widgetOpen" | "widgetState" | "widgetClose" => widgets::handle(session, answer, command),
+        "discordOpen" | "discordSend" | "discordClose" => discord::handle(session, answer, command),
         "http" if !local => remote(session, answer, command),
         "http" | "wsOpen" if local && p.loopback.is_empty() => {
             answer.denied("The plugin declares no loopback permission")
@@ -816,6 +836,16 @@ pub struct Permission {
 pub fn describe(p: &Permissions) -> Vec<Permission> {
     let mut items = Vec::new();
     let mut add = |kind, title, detail| items.push(Permission { kind, title, detail });
+    if p.widgets {
+        add(
+            "widgets",
+            tr!("Локальные веб-виджеты", "Local web widgets", "本地网页组件"),
+            tr!("Страницы плагина в браузере и OBS", "Plugin pages in browsers and OBS", "浏览器和 OBS 中的插件页面"),
+        );
+    }
+    if !p.discord.is_empty() {
+        add("discord", tr!("Активность Discord", "Discord activity", "Discord 活动"), p.discord.join(", "));
+    }
     if !p.loopback.is_empty() {
         add(
             "loopback",
@@ -942,10 +972,10 @@ mod tests {
             sink.lock().unwrap().push(v);
             true
         });
-        let session = Session::new(&manifest, false, reply.clone());
+        let session = Session::new(&manifest, false, reply.clone(), PathBuf::new(), String::new());
         handle(&session, &json!({ "type": "clipboard", "id": "c", "text": "x" }));
         assert_eq!(replies.lock().unwrap()[0]["type"], "denied");
-        let granted = Session::new(&manifest, true, reply);
+        let granted = Session::new(&manifest, true, reply, PathBuf::new(), String::new());
         handle(&granted, &json!({ "type": "http", "id": "h", "url": "http://127.0.0.1:9222/" }));
         assert_eq!(replies.lock().unwrap()[1]["type"], "denied", "no loopback permission");
         handle(&granted, &json!({ "type": "hotkey", "id": "k", "keys": "Ctrl + C" }));

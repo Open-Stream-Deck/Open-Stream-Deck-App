@@ -390,6 +390,7 @@ function App({ initial }: { initial: AppState }) {
         w,
         h: KEY_SIZE,
         live: widget || side,
+        animated: side && !!key.ext,
         draw: (ctx) => {
           if (side || widget) {
             const live = presentKey(rawPage[i], pageIndex, i);

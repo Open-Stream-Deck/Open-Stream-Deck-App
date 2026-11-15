@@ -173,12 +173,14 @@ export const HARNESS = String.raw`"use strict";
     var id = "js" + ++serial;
     c.id = id;
     return new Promise(function (resolve, reject) {
+      var timeout = setTimeout(function () { pending.delete(id); reject(new Error("Host request timed out")); }, 30000);
       pending.set(id, function (event) {
+        clearTimeout(timeout);
         if (event.type === "denied") reject(new Error(event.message || "Permission denied"));
         else if (event.error) reject(new Error(event.error));
         else resolve(event);
       });
-      if (!route(c, jsReply)) { pending.delete(id); reject(new Error("The command was refused")); }
+      if (!route(c, jsReply)) { clearTimeout(timeout); pending.delete(id); reject(new Error("The command was refused")); }
     });
   }
 
@@ -231,6 +233,33 @@ export const HARNESS = String.raw`"use strict";
         });
         return function () { end(); command({ type: "appUnwatch", id: id }); };
       },
+    },
+    discord: {
+      connect: function (application, onEvent) {
+        var id = "discord" + ++serial;
+        var end;
+        return new Promise(function (resolve, reject) {
+          var connected = false;
+          end = stream({ type: "discordOpen", id: id, application: String(application) }, function (event) {
+            if (event.type === "discordOpen") {
+              connected = true;
+              resolve({
+                send: function (cmd, args, evt) { return request({ type: "discordSend", payload: { cmd: cmd, args: args || {}, evt: evt } }).then(function (reply) { return reply.payload; }); },
+                close: function () { end(); return request({ type: "discordClose" }); }
+              });
+            } else if (event.type === "discordClose" || event.type === "denied") {
+              end();
+              if (!connected) reject(new Error(event.message || event.reason || "Discord disconnected"));
+              if (onEvent) call(onEvent, event);
+            } else if (onEvent) call(onEvent, event);
+          });
+        });
+      }
+    },
+    widgets: {
+      open: function (widget, directory) { return request({ type: "widgetOpen", widget: widget, directory: directory }).then(function (event) { return event.url; }); },
+      setState: function (widget, state) { return request({ type: "widgetState", widget: widget, state: state }).then(function () {}); },
+      close: function (widget) { return request({ type: "widgetClose", widget: widget }).then(function () {}); }
     },
     clipboard: function (value) { return request({ type: "clipboard", text: String(value) }).then(function () {}); },
     keyboard: {

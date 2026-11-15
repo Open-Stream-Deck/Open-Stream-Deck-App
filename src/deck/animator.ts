@@ -12,6 +12,7 @@ export type Surface = {
   w: number;
   h: number;
   live: boolean;
+  animated?: boolean;
   draw: (ctx: CanvasRenderingContext2D) => void;
 };
 
@@ -159,7 +160,7 @@ export function startAnimator(send: (cmd: Commands) => Promise<void>, connected:
       const touched: Rect[] = [];
       for (const s of surfaces) {
         const effect = hasEffect(s.id);
-        if (!effect && (!s.live || !(liveTick || rolling.has(s.id)) || overBudget)) continue;
+        if (!effect && (!s.live || !(s.animated || liveTick || rolling.has(s.id)) || overBudget)) continue;
         const ctx = context(s.id, s.w, s.h);
         takeRolling();
         ctx.save();

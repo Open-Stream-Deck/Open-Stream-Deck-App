@@ -40,7 +40,7 @@ export type Manifest = {
   icon?: string;
   runtime: { type: "wasm" | "js"; main: string };
   ui?: { inspector?: string; settings?: string };
-  permissions?: { loopback?: string[]; network?: string[]; clipboard?: boolean; launch?: unknown[]; keyboard?: boolean; navigation?: boolean };
+  permissions?: { loopback?: string[]; network?: string[]; discord?: string[]; widgets?: boolean; clipboard?: boolean; launch?: unknown[]; keyboard?: boolean; navigation?: boolean };
   components?: { id: string; name: string; version: string }[];
   actions: ManifestAction[];
 };

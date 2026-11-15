@@ -45,6 +45,7 @@ pub struct PluginHost {
     sessions: Mutex<HashMap<(String, u64), Arc<broker::Session>>>,
     dev: dev::Dev,
     install_lock: Mutex<()>,
+    widget_secret: Mutex<Option<String>>,
     component_plans: Mutex<BTreeMap<String, components::Pending>>,
 }
 
@@ -62,6 +63,7 @@ impl PluginHost {
             revisions: Mutex::default(),
             sessions: Mutex::default(),
             install_lock: Mutex::new(()),
+            widget_secret: Mutex::default(),
             component_plans: Mutex::default(),
         });
         host.scan();
@@ -216,7 +218,8 @@ impl PluginHost {
             return Err(format!("Unknown broker command {kind}"));
         }
         let key = (id.to_string(), session);
-        let existing = self.sessions.lock().unwrap().get(&key).cloned();
+        let mut sessions = self.sessions.lock().unwrap();
+        let existing = sessions.get(&key).cloned();
         let session_state = match existing {
             Some(s) => s,
             None => {
@@ -237,11 +240,36 @@ impl PluginHost {
                             )
                             .is_ok()
                 });
-                let state = broker::Session::new(&plugin.manifest, plugin.granted, reply);
-                self.sessions.lock().unwrap().insert(key, state.clone());
+                let mut cached = self.widget_secret.lock().unwrap();
+                let secret_path = self.root.join(".widget-secret");
+                let secret = if let Some(secret) = cached.as_ref() {
+                    secret.clone()
+                } else {
+                    match fs::read_to_string(&secret_path) {
+                        Ok(secret) => secret,
+                        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                            let secret = token()?;
+                            fs::write(&secret_path, &secret).map_err(|e| e.to_string())?;
+                            secret
+                        }
+                        Err(error) => return Err(error.to_string()),
+                    }
+                };
+                *cached = Some(secret.clone());
+                drop(cached);
+                let secret = format!("{secret}:{id}");
+                let state = broker::Session::new(
+                    &plugin.manifest,
+                    plugin.granted,
+                    reply,
+                    self.plugins.lock().unwrap().get(id).ok_or_else(not_found)?.dir.clone(),
+                    secret,
+                );
+                sessions.insert(key, state.clone());
                 state
             }
         };
+        drop(sessions);
         broker::handle(&session_state, &command);
         Ok(())
     }

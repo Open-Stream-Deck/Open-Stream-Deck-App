@@ -139,6 +139,7 @@ export function DeckKey({
 
   const className = [
     "deck-key",
+    !config.action && !config.image && config.title.trim() === "" && "deck-key--empty",
     side && "side-tile",
     selected && "deck-key--selected",
     pressed && "deck-key--pressed",

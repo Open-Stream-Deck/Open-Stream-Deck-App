@@ -7,6 +7,7 @@
   --surface-hover: #1b1b1b;
   --surface-focus: #1a1a1a;
   --key: #000000;
+  --key-empty: #1c1c1c;
   --key-border: #2a2829;
   --key-border-hover: #3a3839;
   --border: #262626;
@@ -62,6 +63,7 @@
   --surface-raised: #ffffff;
   --surface-hover: #e8ecf2;
   --surface-focus: #ffffff;
+  --key-empty: #ffffff;
   --key-border: #cdd5e0;
   --key-border-hover: #b9c4d3;
   --border: #d4dbe5;

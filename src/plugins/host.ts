@@ -631,6 +631,12 @@ class PluginHostClient {
       case "openUrl":
         if (typeof c.url === "string") this.openUrl(id, c.url, false);
         return;
+      case "widgetOpen":
+      case "widgetState":
+      case "widgetClose":
+      case "discordOpen":
+      case "discordSend":
+      case "discordClose":
       case "http":
       case "wsOpen":
       case "wsSend":

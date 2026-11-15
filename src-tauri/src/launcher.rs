@@ -6,10 +6,7 @@ use tauri::{AppHandle, Emitter, Manager, WebviewWindow};
 use velopack::sources::HttpSource;
 use velopack::{UpdateCheck, UpdateInfo, UpdateManager};
 
-const FEEDS: [&str; 2] = [
-    "https://dl.opensd.dev/v1/app",
-    "https://github.com/Open-Stream-Deck/Open-Stream-Deck-App/releases/latest/download",
-];
+const FEED: &str = "https://github.com/Open-Stream-Deck/Open-Stream-Deck-App/releases/latest/download";
 
 type Update = (UpdateManager, UpdateInfo);
 
@@ -69,21 +66,29 @@ fn check(app: AppHandle) {
         udev(&app);
         let (sender, receiver) = mpsc::channel();
         thread::spawn(move || {
-            sender.send(find().ok().flatten()).ok();
+            sender.send(find()).ok();
         });
-        if let Ok(Some((manager, info))) = receiver.recv_timeout(Duration::from_secs(10)) {
-            let splash = app.get_webview_window("splash");
-            let eval = |script: &str| {
-                if let Some(splash) = &splash {
-                    splash.eval(script).ok();
+        match receiver.recv_timeout(Duration::from_secs(10)) {
+            Ok(Ok(Some((manager, info)))) => {
+                let splash = app.get_webview_window("splash");
+                let eval = |script: &str| {
+                    if let Some(splash) = &splash {
+                        splash.eval(script).ok();
+                    }
+                };
+                if let Err(error) =
+                    download(&manager, &info, |percent| eval(&format!("progress({})", percent as f64 / 100.0)))
+                        .and_then(|_| {
+                            eval("installing()");
+                            manager.apply_updates_and_restart(&info)
+                        })
+                {
+                    eprintln!("update install failed: {error}");
                 }
-            };
-            download(&manager, &info, |percent| eval(&format!("progress({})", percent as f64 / 100.0)))
-                .and_then(|_| {
-                    eval("installing()");
-                    manager.apply_updates_and_restart(&info)
-                })
-                .ok();
+            }
+            Ok(Ok(None)) => {}
+            Ok(Err(error)) => eprintln!("update check failed: {error}"),
+            Err(error) => eprintln!("update check did not finish: {error}"),
         }
         advance(&app, |steps| steps.checked = true);
     });
@@ -91,8 +96,7 @@ fn check(app: AppHandle) {
 
 fn find() -> Result<Option<Update>, velopack::Error> {
     let custom = std::env::var("OSD_UPDATE_FEED").ok();
-    let feeds = custom.as_deref().map_or(FEEDS.to_vec(), |feed| vec![feed]);
-    feeds[1..].iter().fold(find_in(feeds[0]), |found, feed| found.or_else(|_| find_in(feed)))
+    find_in(custom.as_deref().unwrap_or(FEED))
 }
 
 fn find_in(feed: &str) -> Result<Option<Update>, velopack::Error> {

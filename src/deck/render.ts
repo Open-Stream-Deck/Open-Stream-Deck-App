@@ -253,16 +253,33 @@ export function drawSlot(
   } else drawContent(ctx, key, plugins, w, h, slotImage(ctx, key.image, !!key.ext), key.backdrop ? loadedImage(key.backdrop) : null);
 }
 
-const lastDrawn = new WeakMap<CanvasRenderingContext2D, Picture>();
+type SlotFrame = { src: string; image: Picture | null; requested: number; completed: number };
+const slotFrames = new WeakMap<CanvasRenderingContext2D, SlotFrame>();
 
 function slotImage(ctx: CanvasRenderingContext2D, src: string | null, frame: boolean) {
   if (!src) {
-    lastDrawn.delete(ctx);
+    slotFrames.delete(ctx);
     return null;
   }
-  const img = loadedImage(src, frame) ?? lastDrawn.get(ctx) ?? null;
-  if (img) lastDrawn.set(ctx, img);
-  return img;
+  let state = slotFrames.get(ctx);
+  if (!state) {
+    state = { src: "", image: null, requested: 0, completed: 0 };
+    slotFrames.set(ctx, state);
+  }
+  if (state.src !== src) {
+    state.src = src;
+    const request = ++state.requested;
+    const current = state;
+    const entry = cached(src, frame);
+    const accept = (image: Picture) => {
+      if (slotFrames.get(ctx) !== current || request < current.completed) return;
+      current.image = image;
+      current.completed = request;
+    };
+    if (entry.img) accept(entry.img);
+    else entry.promise.then(accept, () => undefined);
+  }
+  return state.image;
 }
 
 export async function renderKey(key: KeyConfig, plugins: Plugin[], widget?: WidgetEnv | null) {

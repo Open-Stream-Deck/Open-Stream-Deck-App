@@ -6,7 +6,7 @@ use tauri::http::{Request, Response, StatusCode, header};
 
 const PAGE_POLICY: &str = "default-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'none'; worker-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; sandbox allow-scripts";
 
-fn mime(path: &Path) -> &'static str {
+pub(super) fn mime(path: &Path) -> &'static str {
     match path.extension().and_then(|e| e.to_str()).map(|e| e.to_ascii_lowercase()).as_deref() {
         Some("html" | "htm") => "text/html; charset=utf-8",
         Some("js" | "mjs") => "text/javascript; charset=utf-8",

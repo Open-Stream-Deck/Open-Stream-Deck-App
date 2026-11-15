@@ -2,7 +2,7 @@
 
 # Open Stream Deck
 
-Открытое приложение для макропанели AJAZZ AKP153R: клавиши, страницы, профили, виджеты, плагины и обновление прошивки. Работает с деками, на которых стоит [прошивка Open Stream Deck](https://github.com/Open-Stream-Deck/Firmware-AjazzAKP153R), и само устанавливает её поверх стоковой.
+Открытое приложение для макропанелей: клавиши, страницы, профили, виджеты, плагины и обновление прошивки. Работает с деками, на которых стоит [прошивка Open Stream Deck](https://github.com/Open-Stream-Deck/Firmware-AjazzAKP153R).
 
 [![CI](https://github.com/Open-Stream-Deck/Open-Stream-Deck-App/actions/workflows/ci.yml/badge.svg)](https://github.com/Open-Stream-Deck/Open-Stream-Deck-App/actions/workflows/ci.yml)
 [![docs](https://img.shields.io/badge/docs-wiki.opensd.dev-blue)](https://wiki.opensd.dev)
